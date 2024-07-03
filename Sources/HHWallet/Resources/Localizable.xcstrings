@@ -1,0 +1,66 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    "👌 Copied to clipboard!" : {
+
+    },
+    "2HWallet" : {
+
+    },
+    "All blockchains" : {
+
+    },
+    "EDIT" : {
+
+    },
+    "Enter mnemonic" : {
+
+    },
+    "I backup mnemonic phrase" : {
+
+    },
+    "Import wallet" : {
+
+    },
+    "New" : {
+
+    },
+    "No selected tokens" : {
+
+    },
+    "No wallets yet." : {
+
+    },
+    "Not found" : {
+
+    },
+    "Secret phrase" : {
+
+    },
+    "Select blockchain" : {
+
+    },
+    "Select currency" : {
+
+    },
+    "Select tokens" : {
+
+    },
+    "Select wallet" : {
+
+    },
+    "Tokens" : {
+
+    },
+    "USD" : {
+
+    },
+    "Your balance" : {
+
+    }
+  },
+  "version" : "1.0"
+}
