@@ -30,7 +30,6 @@ enum APIMethods {
         case .config:
             return ENDPOINT.appendingPathComponent("resources/config")
         case .tokens(let q, let offset, let limit, let coinTypes):
-
             return ENDPOINT.appendPathString("resources/tokens?limit=\(limit)&offset=\(offset)&q=\(q.urlEncoded() ?? "")&\(coinTypes.map { "coinTypes[]=\($0)" }.joined(separator: "&"))")
         }
     }

@@ -7,7 +7,7 @@ import SwiftUI
 struct SelectBlockchainsView: View {
 
     let selectedBlockchain: Blockchain?
-    private let blockchains: [Blockchain] =  appState.state.config?.blockchains ?? []
+    private let blockchains: [Blockchain] =  AppViewModel.shared.state.config?.blockchains ?? []
 
     var action:(Blockchain?) -> Void
 

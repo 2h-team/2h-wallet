@@ -6,8 +6,6 @@ import SwiftUI
 
 struct ButtonView: View {
     
-//    @Environment(\.colorScheme) var colorScheme
-
     let text: String?
     let image: Image?
     var imageSize: CGFloat = 24.0
@@ -25,9 +23,6 @@ struct ButtonView: View {
     }
 
     struct ContentView: View {
-
-//        @Environment(\.colorScheme) var colorScheme
-
         let text: String?
         let image: Image?
         var imageSize: CGFloat = 24.0
@@ -55,6 +50,7 @@ struct ButtonView: View {
             }
             .frame(width: isSquare ? heightSize : nil, height: heightSize)
             .opacity(state == .active ? 1.0 : 0.4)
+            .cornerRadius(20)
         }
 
         private var isSquare: Bool {

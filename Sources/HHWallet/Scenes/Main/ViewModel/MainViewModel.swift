@@ -19,14 +19,15 @@ final class MainViewModel: ObservableObject {
     @Published private(set) var state: State
 
     init(
+        wallet: Wallet,
         networkService: NetworkService = .shared,
         settingsStorage: SettingsStorage = SettingsStorage.shared,
-        walletService: WalletServiceProtocol = WalletServiceWrapper.shared.service
+        walletService: WalletServiceProtocol = WalletService.shared
     ) {
         self.walletService = walletService
         self.networkService = networkService
         self.settingsStorage = settingsStorage
-        self.state = .init(currency: settingsStorage.selectedCurrency)
+        self.state = .init(currentWallet: wallet, currency: settingsStorage.selectedCurrency)
     }
 
     func trigger(_ action: Action) {
@@ -79,7 +80,7 @@ final class MainViewModel: ObservableObject {
 
                 case .failure(let error):
                     Task { @MainActor [weak self] in
-                        state.status = .error(error.errorMessage)
+                        self?.state.status = .error(error.errorMessage)
                     }
                 }
             }
@@ -90,15 +91,6 @@ final class MainViewModel: ObservableObject {
     }
 }
 
-enum CoinTypeHelper {
-    static func getByUInt(_ value: Int) -> CoinType? {
-        #if SKIP
-        return CoinType.values().firstOrNull { $0 == (value as? CoinType) }
-        #else
-        return CoinType(rawValue: UInt32(value))
-        #endif
-    }
-}
 
 extension MainViewModel {
     struct State {
@@ -111,6 +103,7 @@ extension MainViewModel {
             let formattedValue: String
         }
 
+        var currentWallet: Wallet
         var status: Status = .loading
         var estimateBalance: String = ""
         var currency: String

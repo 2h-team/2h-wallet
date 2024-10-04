@@ -7,33 +7,40 @@ import SwiftUI
 
 final class AppViewModel: ObservableObject {
 
+    public static let shared: AppViewModel = .init()
+
     @Published private(set) var state: State
 
     private let walletService: WalletServiceProtocol
     private let networkingService: NetworkService
 
-    init(walletService: WalletServiceProtocol = WalletServiceWrapper.shared.service, networkingService: NetworkService = .shared) {
+    private init(walletService: WalletServiceProtocol = WalletService.shared, networkingService: NetworkService = .shared) {
         self.walletService = walletService
         self.networkingService = networkingService
 
-        state = .init(walletSelected: false, status: State.Status.loading)
+        state = .init(selectedWallet: nil, status: State.Status.loading)
     }
 
     func trigger(_ action: Action) {
         switch action {
-        case .selectedWallet:
-            state.walletSelected = true
+        case .selectedWallet(let wallet):
+            state.selectedWallet = wallet
         case .loadConfig:
             state.status = .loading
             networkingService.getConfig { result in
                 Task { @MainActor in
                     switch result {
-                    case .success(let success):
+                    case .success(let config):
                         self.state.status = .loaded
-                        self.state.config = success
-                        self.state.walletSelected = self.walletService.hasWallet
+                        self.state.config = config
+                        self.state.selectedWallet = self.walletService.currentWallet
                     case .failure(let error):
-                        self.state.status = .error(error.errorMessage)
+                        // self.state.status = .error(error.errorMessage)
+                        
+                        // TODO: - Remove. Need for test
+                        self.state.status = .loaded
+                        self.state.config = .default
+                        self.state.selectedWallet = self.walletService.currentWallet
                     }
                 }
             }
@@ -49,7 +56,7 @@ extension AppViewModel {
             case loading, loaded, error(String)
         }
 
-        var walletSelected: Bool
+        var selectedWallet: Wallet?
         var config: Resources.Config?
         var status: Status
     }

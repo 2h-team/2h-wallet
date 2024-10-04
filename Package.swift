@@ -22,15 +22,15 @@ let package = Package(
     dependencies: [
         .package(url: "https://source.skip.tools/skip.git", from: "0.8.33"),
         .package(url: "https://source.skip.tools/skip-ui.git", from: "0.0.0"),
-        .package(url: "https://github.com/trustwallet/wallet-core", branch: "master"),
-        .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "3.0.0")
+        .package(url: "https://source.skip.tools/skip-keychain.git", from: "0.0.0"),
+        .package(url: "https://github.com/trustwallet/wallet-core", branch: "master")
     ],
     targets: [
         .target(name: "HHWallet", dependencies: (zero ? [] : [
             .product(name: "SkipUI", package: "skip-ui"),
+            .product(name: "SkipKeychain", package: "skip-keychain"),
             .product(name: "WalletCore", package: "wallet-core"),
-            .product(name: "SwiftProtobuf", package: "wallet-core"),
-            .product(name: "KeychainAccess", package: "KeychainAccess")
+            .product(name: "SwiftProtobuf", package: "wallet-core")
         ]
         ),
                 resources: [.process("Resources")], plugins: skipstone

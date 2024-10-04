@@ -3,8 +3,16 @@
 // as published by the Free Software Foundation https://fsf.org
 
 import Foundation
+#if !SKIP
+import CryptoKit
+#endif
 
 extension String {
+
+    func asURL() -> URL? {
+        URL(string: self)
+    }
+
     func maskMnemonic() -> String {
         let words = self.split(separator: " ")
         return words.map { String(repeating: "*", count: $0.count) }.joined(separator: " ")
@@ -33,13 +41,17 @@ extension String {
         return "\(firstPart)\(maskString)\(lastPart)"
     }
 
-    //    func toHexEncodedString(uppercase: Bool = true, prefix: String = "", separator: String = "") -> String {
-    //        return unicodeScalars.map { prefix + .init($0.value, radix: 16, uppercase: uppercase) } .joined(separator: separator)
-    //    }
-    //
-    //    func asHex() -> String {
-    //        let value = UInt64(littleEndian: UInt64(self) ?? 0)
-    //        return String(format:"%08x", value.littleEndian)
-    //
-    //    }
+    func sha256() -> String {
+#if SKIP
+        // SKIP INSERT:
+        // val data = this.toString().toByteArray()
+        // val md = MessageDigest.getInstance("SHA-256")
+        // val digest = md.digest(data)
+        // return digest.fold("", { str, it -> str + "%02x".format(it) })
+#else
+        let data = Data(self.utf8)
+        let hashed = SHA256.hash(data: data)
+        return hashed.compactMap { String(format: "%02x", $0) }.joined()
+#endif
+    }
 }

@@ -17,7 +17,7 @@ struct SelectWalletView: View {
 
     let mode: Mode
 
-    @StateObject private var viewModel = NewWalletViewModel(walletService: WalletServiceWrapper.shared.service)
+    @StateObject private var viewModel = NewWalletViewModel(walletService: WalletService.shared)
 
     var body: some View {
         NavigationStack {
@@ -31,6 +31,7 @@ struct SelectWalletView: View {
                                     VStack {
                                         Text("2HWallet")
                                             .font(.title)
+
                                         Spacer()
                                     }
                                 case .default:
@@ -58,7 +59,7 @@ struct SelectWalletView: View {
                     }
                     HStack(spacing: 4) {
                         NavigationLink {
-                            CompleteWalletView(viewModel: viewModel)
+                            CompleteWalletView(mode: mode, viewModel: viewModel)
                         } label: {
                             ButtonView.ContentView(text: "Create new", image: nil, style: .secondary, state: .active)
                         }
@@ -80,24 +81,26 @@ struct SelectWalletView: View {
     @ViewBuilder
     func walletItem(title: String, selected: Bool, selectAction:  @escaping (Bool) -> Void, menuAction: @escaping () -> Void) -> some View {
         HStack(alignment: .center) {
-            HStack(spacing: 12) {
+            HStack {
                 Button {
                     selectAction(!selected)
                 } label: {
-                    if selected {
-                        Image(systemName: "checkmark.circle.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 24, height: 24)
-                    } else {
-                        Image(systemName: "circle")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 24, height: 24)
+                    HStack(spacing: 12) {
+                        if selected {
+                            Image(systemName: "checkmark.circle.fill")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 24, height: 24)
+
+                        } else {
+                            RoundedRectangle(cornerSize: CGSize(width: 12, height: 12))
+                                .fill(Color.accentColor.opacity(0.4))
+                                .frame(width: 24, height: 24)
+                        }
+                        Text(title)
+                            .font(.body)
                     }
                 }
-                Text(title)
-                    .font(.body)
             }
             Spacer()
             Button {

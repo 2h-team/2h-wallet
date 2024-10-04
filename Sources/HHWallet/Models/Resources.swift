@@ -16,3 +16,12 @@ extension Resources {
     }
 }
 
+extension Resources.Config {
+    static let `default` =  Resources.Config(
+        settingsIsEnabled: false,
+        buyIsEnabled: false,
+        blockchains: [],
+        serviceTokens: [:],
+        currencies: ["USD"]
+    )
+}

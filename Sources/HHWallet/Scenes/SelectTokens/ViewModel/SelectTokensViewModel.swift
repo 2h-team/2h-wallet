@@ -24,7 +24,7 @@ final class SelectTokensViewModel: ObservableObject {
         self.selectedTokens = settingsStorage.selectedTokens
 
         self.state = .init(selectedTokens: Dictionary(uniqueKeysWithValues: self.selectedTokens.map { ($0.id, true) }))
-        if let config = appState.state.config {
+        if let config = AppViewModel.shared.state.config {
             self.state.blockchains = Dictionary(uniqueKeysWithValues: config.blockchains.map { ($0.id, $0) })
         }
 

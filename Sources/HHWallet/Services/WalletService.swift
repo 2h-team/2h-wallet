@@ -9,11 +9,11 @@ import wallet.core.jni.HDWallet
 import WalletCore
 #endif
 
-#if !SKIP
-
-import CryptoKit
 
 final class WalletService: WalletServiceProtocol {
+
+    static let shared: WalletServiceProtocol = WalletService(storage: SecureWalletStorage())
+
     enum Error: Swift.Error, LocalizedError {
         case alreadyExist
 
@@ -29,8 +29,13 @@ final class WalletService: WalletServiceProtocol {
     private(set) var currentWallet: Wallet?
 
     init(storage: WalletStorageProtocol) {
+        // SKIP INSERT: System.loadLibrary("TrustWalletCore")
         self.storage = storage
-        self.currentWallet = .init(storage.current())
+        let wallet = storage.current()
+
+        guard let wallet = wallet else { return }
+
+        self.currentWallet = Wallet(title: wallet.name, mnemonic: wallet.mnemonic)
     }
 
     var hasWallet: Bool {
@@ -38,43 +43,55 @@ final class WalletService: WalletServiceProtocol {
     }
 
     func createWallet(forceDefault: Bool = false) throws -> Wallet {
+        let nameWallet = "Wallet \(storage.load().count + 1)"
+#if SKIP
+        guard let wallet = HDWallet(128, "") else {
+            throw WalletServiceError.errorCreateWallet
+        }
+        return .init(title: nameWallet, mnemonic: wallet.mnemonic())
+#else
         guard let wallet = HDWallet(strength: 128, passphrase: "") else {
             throw WalletServiceError.errorCreateWallet
         }
-
-        let nameWallet = "Wallet \(storage.load().count + 1)"
         return .init(title: nameWallet, mnemonic: wallet.mnemonic)
+#endif
     }
 
     func saveWallet(_ wallet: Wallet, forceDefault: Bool = false) {
         let walletItem = WalletStorageItem(id: wallet.id, name: wallet.title, mnemonic: wallet.mnemonic)
 
         try? storage.add(walletItem)
+        
         if forceDefault || storage.current() == nil {
             try? storage.setCurrent(walletItem)
-            currentWallet = .init(walletItem)
+            currentWallet = .init(title: walletItem.name, mnemonic: walletItem.mnemonic)
         }
     }
 
     func importWallet(mnemonic: String, forceDefault: Bool = false) throws -> Wallet {
-        guard let wallet = HDWallet(mnemonic: mnemonic, passphrase: "") else {
+#if SKIP
+        guard HDWallet(mnemonic, "") != nil else {
             throw WalletServiceError.invalidMnemonic
         }
-
+#else
+        guard HDWallet(mnemonic: mnemonic, passphrase: "") != nil else {
+            throw WalletServiceError.invalidMnemonic
+        }
+#endif
         let nameWallet = "Wallet \(storage.load().count + 1)"
         let extWallet = Wallet(title: nameWallet, mnemonic: mnemonic)
-        let walletItem = WalletStorageItem(id: extWallet.id, name: nameWallet, mnemonic: wallet.mnemonic)
+        let walletItem = WalletStorageItem(id: extWallet.id, name: nameWallet, mnemonic: mnemonic)
 
-        guard !storage.alreadyExist(extWallet.id) else {
-            throw Error.alreadyExist
-        }
+        guard !storage.exist(extWallet.id) else { throw Error.alreadyExist }
+
         try? storage.add(walletItem)
+
         if forceDefault || storage.current() == nil {
             try? storage.setCurrent(walletItem)
-            currentWallet = .init(walletItem)
+            currentWallet = .init(title: walletItem.name, mnemonic: walletItem.mnemonic)
         }
 
-        return .init(title: nameWallet, mnemonic: wallet.mnemonic)
+        return .init(title: nameWallet, mnemonic: mnemonic)
     }
 
     func setDefault(_ wallet: Wallet?) {
@@ -82,7 +99,7 @@ final class WalletService: WalletServiceProtocol {
             let walletItem = WalletStorageItem(id: wallet.id, name: wallet.title, mnemonic: wallet.mnemonic)
 
             try? storage.setCurrent(walletItem)
-            currentWallet = .init(walletItem)
+            currentWallet = .init(title: walletItem.name, mnemonic: walletItem.mnemonic)
         } else {
             try? storage.setCurrent(nil)
             currentWallet = nil
@@ -90,14 +107,19 @@ final class WalletService: WalletServiceProtocol {
     }
 
     func isValidMnemonic(mnemonic: String) -> Bool {
-        Mnemonic.isValid(mnemonic: mnemonic)
+#if SKIP
+        // TODO: - Need use Mnemonic.isValid
+        guard let wallet = HDWallet(mnemonic, "") else { return false }
+        return true
+#else
+        return Mnemonic.isValid(mnemonic: mnemonic)
+#endif
     }
 
     func getWallets() -> [Wallet] {
         storage.load().map { Wallet(id: $0.id, title: $0.name, mnemonic: $0.mnemonic) }
     }
 }
-#endif
 
 enum WalletServiceError: Error {
     case invalidMnemonic, errorCreateWallet
@@ -111,10 +133,7 @@ struct Wallet: Identifiable {
     init(title: String, mnemonic: String) {
         self.title = title
         self.mnemonic = mnemonic
-
-        let data = Data(mnemonic.utf8)
-        let hashed = SHA256.hash(data: data)
-        self.id = hashed.compactMap { String(format: "%02x", $0) }.joined()
+        self.id = mnemonic.sha256()
     }
 
     init(id: String, title: String, mnemonic: String) {
@@ -123,84 +142,11 @@ struct Wallet: Identifiable {
         self.id = id
     }
 
-#if SKIP
     func wallet() -> HDWallet? {
+#if SKIP
         HDWallet(mnemonic, "")
-    }
-
 #else
-    func wallet() -> HDWallet? {
         HDWallet(mnemonic: mnemonic, passphrase: "")
-    }
-
-    init?(_ wallet: WalletStorageItem?) {
-        guard let wallet = wallet, let hdWallet = HDWallet(mnemonic: wallet.mnemonic, passphrase: "") else { return nil }
-        self.init(title: wallet.name, mnemonic: hdWallet.mnemonic)
-    }
-    #endif
-
-}
-
-protocol WalletServiceProtocol {
-    var hasWallet: Bool { get }
-    var currentWallet: Wallet? { get }
-
-    func createWallet(forceDefault: Bool) throws -> Wallet
-    func saveWallet(_ wallet: Wallet, forceDefault: Bool)
-    func importWallet(mnemonic: String, forceDefault: Bool) throws -> Wallet
-    func isValidMnemonic(mnemonic: String) -> Bool
-    func setDefault(_ wallet: Wallet?)
-    func getWallets() -> [Wallet]
-}
-
-#if SKIP
-final class KotlinWalletService: WalletServiceProtocol {
-
-    init() { 
-        // SKIP INSERT: System.loadLibrary("TrustWalletCore")
-    }
-
-    var hasWallet: Bool {
-        return false
-    }
-
-    var currentWallet: Wallet? {
-        nil
-    }
-
-    func createWallet(forceDefault: Bool) throws -> Wallet {
-        guard let wallet = HDWallet(128, "") else {
-            throw WalletServiceError.errorCreateWallet
-        }
-        return .init(title: "Wallet", mnemonic: wallet.mnemonic())
-    }
-    
-    func saveWallet(_ wallet: Wallet, forceDefault: Bool) {
-
-    }
-    
-    func importWallet(mnemonic: String, forceDefault: Bool) throws -> Wallet {
-        throw WalletServiceError.invalidMnemonic
-    }
-    
-    func isValidMnemonic(mnemonic: String) -> Bool {
-        false
-    }
-    func setDefault(_ wallet: Wallet?) {
-
-    }
-    func getWallets() -> [Wallet] {
-        []
-    }
-}
 #endif
-
-final class WalletServiceWrapper {
-    static let shared = WalletServiceWrapper()
-
-    #if SKIP
-    let service: WalletServiceProtocol = KotlinWalletService()
-    #else
-    let service: WalletServiceProtocol = WalletService(storage: KeychainWalletStorage.shared)
-    #endif
+    }
 }

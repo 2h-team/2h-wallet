@@ -8,10 +8,12 @@ import android.content.Context
 import SwiftUI
 
 struct CompleteWalletView: View {
-#if !SKIP
-    @Environment(\.presentationMode) var mode
-#endif
-    @StateObject var viewModel: NewWalletViewModel
+    @Environment(\.dismiss) var dismiss
+
+    let mode: SelectWalletView.Mode
+
+    @ObservedObject var viewModel: NewWalletViewModel
+
     @State private var isAllowContinue: Bool = false
     @State private var showMnemonic: Bool = false
     @State private var copiedNotification: Bool = false
@@ -70,6 +72,11 @@ struct CompleteWalletView: View {
 
                 ButtonView(text: "Complete", image: nil, style: .primary, state: isAllowContinue ? .active : .disable) {
                     viewModel.trigger(.finish)
+                    
+                    if mode == .default {
+                        dismiss()
+                    }
+
                 }
             }
         }

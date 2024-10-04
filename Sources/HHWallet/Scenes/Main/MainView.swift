@@ -6,10 +6,19 @@ import SwiftUI
 
 struct MainView: View {
 
-    @StateObject private var viewModel = MainViewModel()
+    @EnvironmentObject var appState: AppViewModel
+
+    @StateObject var viewModel: MainViewModel
+
     @State private var showSelectWallet: Bool = false
     @State private var showSelectCurrency: Bool = false
     @State private var showSelectTokens: Bool = false
+    @State private var showReceive: Bool = false
+
+    init(wallet: Wallet) {
+        self._viewModel = StateObject(wrappedValue: MainViewModel(wallet: wallet))
+    }
+
     var body: some View {
         content()
         #if !SKIP
@@ -24,6 +33,10 @@ struct MainView: View {
         }
         .sheet(isPresented: $showSelectWallet, content: {
             SelectWalletView(mode: .default)
+        })
+        .sheet(isPresented: $showReceive, content: {
+            ReceiveView(mode: ReceiveView.Mode.default)
+                .environmentObject(appState)
         })
         .sheet(isPresented: $showSelectTokens, content: {
             SelectTokensView()
@@ -83,7 +96,7 @@ struct MainView: View {
                     switch viewModel.state.status {
                     case .loading, .error:
                         RoundedRectangle(cornerRadius: 28)
-                            .fill(.gray.opacity(0.2))
+                            .fill(.gray.opacity(0.1))
                             .frame(width: 120, height: 48)
                     case .loaded:
                         Text(viewModel.state.estimateBalance)
@@ -117,7 +130,7 @@ struct MainView: View {
 
     @ViewBuilder
     private func selectWalletButton() -> some View {
-        ButtonView(text: "Wallet 1", image: Image(systemName: "chevron.down"), imageSize: 12.0, style: .secondary) {
+        ButtonView(text: appState.state.selectedWallet?.title ?? "No wallet", image: Image(systemName: "chevron.down"), imageSize: 12.0, style: .secondary) {
             showSelectWallet = true
         }
     }
@@ -132,7 +145,7 @@ struct MainView: View {
     @ViewBuilder
     private func receiveButton() -> some View {
         ButtonView(text: "Receive", image: nil, style: .secondary) {
-            debugPrint("Click")
+            showReceive = true
         }
     }
 
@@ -172,7 +185,16 @@ struct MainView: View {
                         TokenSkeletonView()
                     case .loaded:
                         if viewModel.state.tokens.isEmpty {
-                            Text("No selected tokens")
+                            HStack {
+                                Spacer()
+                                Text("No selected tokens")
+                                    .foregroundColor(.gray.opacity(0.6))
+                                    .font(.subheadline)
+                                    .foregroundColor(AppStyle.accentColor)
+                                Spacer()
+                            }
+                            .padding()
+
                         } else {
                             ForEach(viewModel.state.tokens, id: \.self) { token in
                                 Button(action: {
@@ -277,20 +299,20 @@ struct TokenSkeletonView: View {
     var body: some View {
         HStack(alignment: .center) {
             Circle()
-                .fill(.gray.opacity(0.2))
+                .fill(.gray.opacity(0.1))
                 .frame(width: 52, height: 52)
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 4) {
                     RoundedRectangle(cornerRadius: 6)
-                        .fill(.gray.opacity(0.3))
+                        .fill(.gray.opacity(0.1))
                         .frame(width: 150, height: 16)
                     RoundedRectangle(cornerRadius: 6)
-                        .fill(.gray.opacity(0.3))
+                        .fill(.gray.opacity(0.1))
                         .frame(width: 50, height: 16)
                 }
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(.gray.opacity(0.1))
+                    .fill(.gray.opacity(0.05))
                     .frame(width: 100, height: 16)
             }
 
@@ -301,5 +323,5 @@ struct TokenSkeletonView: View {
 }
 
 #Preview {
-    MainView()
+    MainView(wallet: .init(title: "Wallet", mnemonic: ""))
 }

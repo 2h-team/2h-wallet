@@ -1,15 +1,6 @@
 {
   "pins" : [
     {
-      "identity" : "keychainaccess",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kishikawakatsumi/KeychainAccess.git",
-      "state" : {
-        "revision" : "8d33ffd6f74b3bcfc99af759d4204c6395a3f918",
-        "version" : "3.2.1"
-      }
-    },
-    {
       "identity" : "skip",
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/skip.git",
@@ -25,6 +16,15 @@
       "state" : {
         "revision" : "ed345b753237dfa1746e2d7365083fb9143963ee",
         "version" : "0.6.11"
+      }
+    },
+    {
+      "identity" : "skip-keychain",
+      "kind" : "remoteSourceControl",
+      "location" : "https://source.skip.tools/skip-keychain.git",
+      "state" : {
+        "revision" : "21b494124ef9d67e33720129be180991260bc09a",
+        "version" : "0.0.1"
       }
     },
     {

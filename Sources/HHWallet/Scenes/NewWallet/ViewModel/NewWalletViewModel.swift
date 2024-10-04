@@ -21,7 +21,10 @@ final class NewWalletViewModel: ObservableObject {
     init(walletService: WalletServiceProtocol) {
         self.walletService = walletService
 
-        state = .init(wallets: walletService.getWallets(), selectedWalletId: walletService.currentWallet?.id)
+        state = .init(
+            wallets: walletService.getWallets(),
+            selectedWalletId: walletService.currentWallet?.id
+        )
     }
 
     func trigger(_ action: Action) {
@@ -40,8 +43,12 @@ final class NewWalletViewModel: ObservableObject {
 
         case .finish:
             guard let wallet = createdWallet else { return }
+            
             walletService.saveWallet(wallet, forceDefault: true)
-            appState.trigger(.selectedWallet(wallet))
+            state.wallets = walletService.getWallets()
+
+            AppViewModel.shared.trigger(.selectedWallet(wallet))
+            
         case .validateMnemonic(let mnemonic):
             state.isValidMnemonic = walletService.isValidMnemonic(mnemonic: mnemonic)
             guard state.isValidMnemonic else { return }
@@ -50,7 +57,7 @@ final class NewWalletViewModel: ObservableObject {
         case .importWallet:
             do {
                 let wallet = try walletService.importWallet(mnemonic: importedMnemonic, forceDefault: true)
-                appState.trigger(.selectedWallet(wallet))
+                AppViewModel.shared.trigger(.selectedWallet(wallet))
             } catch {
                 state.errorMessage = error.localizedDescription
             }
@@ -63,12 +70,15 @@ final class NewWalletViewModel: ObservableObject {
         }
     }
 
-    // SKIP REPLACE:
-    // fun copy(text: String) {
-    //      // TODO: - Added for android
-    // }
     func copy(_ text: String) {
+        #if SKIP
+        let applicationContext = ProcessInfo.processInfo.androidContext
+        // SKIP INSERT:
+        // val clipboard = ContextCompat.getSystemService(applicationContext, ClipboardManager::class.java)
+        // clipboard?.setPrimaryClip(ClipData.newPlainText("", text))
+        #else
         UIPasteboard.general.string = text
+        #endif
     }
 }
 

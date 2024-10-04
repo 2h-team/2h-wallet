@@ -8,7 +8,8 @@ struct ImportWalletView: View {
     #if !SKIP
     @Environment(\.presentationMode) var mode
     #endif
-    @StateObject var viewModel: NewWalletViewModel
+    @ObservedObject var viewModel: NewWalletViewModel
+    
     @State private var isAllowContinue: Bool = false
     @State private var showMnemonic: Bool = false
     @State private var mnemonic: String = ""
@@ -19,6 +20,7 @@ struct ImportWalletView: View {
                 Text("Enter mnemonic")
                 #if SKIP
                 TextEditor(text: $mnemonic)
+                    .textFieldStyle(.roundedBorder)
                 #else
                 ZStack {
                     RoundedRectangle(cornerRadius: 13)

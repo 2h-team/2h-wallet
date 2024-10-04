@@ -3,26 +3,9 @@
 // as published by the Free Software Foundation https://fsf.org
 
 import Foundation
-#if !SKIP
-import KeychainAccess
-#endif
-struct WalletStorageItem: Codable {
-    let id: String
-    let name: String
-    let mnemonic: String
-}
+import SkipKeychain
 
-protocol WalletStorageProtocol {
-    func current() -> WalletStorageItem?
-    func load() -> [WalletStorageItem]
-    func add(_ wallet: WalletStorageItem) throws
-    func alreadyExist(_ id: String) -> Bool
-    func setCurrent(_ wallet: WalletStorageItem?) throws
-    func deleteAll() throws
-}
-#if !SKIP
-final class KeychainWalletStorage: WalletStorageProtocol {
-    static let shared = KeychainWalletStorage()
+final class SecureWalletStorage: WalletStorageProtocol {
 
     private enum Keys: String {
         case service = "hh-wallet", items, current
@@ -30,18 +13,17 @@ final class KeychainWalletStorage: WalletStorageProtocol {
 
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
-    private let keychain = Keychain(service: Keys.service.rawValue)
-        .accessibility(.whenUnlocked)
-        .synchronizable(true)
+    private let keychain = Keychain.shared
+
 
     func current() -> WalletStorageItem? {
-        guard let data = try? keychain.getData(Keys.current.rawValue) else { return nil }
+        guard let json = try? keychain.string(forKey: Keys.current.rawValue), let data = json.data(using: .utf8) else { return nil }
         return try? decoder.decode(WalletStorageItem.self, from: data)
     }
 
     func load() -> [WalletStorageItem] {
         do {
-            guard let data = try keychain.getData(Keys.items.rawValue) else { return [] }
+            guard let json = try keychain.string(forKey: Keys.items.rawValue), let data = json.data(using: .utf8) else { return [] }
             return try decoder.decode([WalletStorageItem].self, from: data)
         } catch {
             return []
@@ -49,34 +31,32 @@ final class KeychainWalletStorage: WalletStorageProtocol {
     }
 
     func add(_ wallet: WalletStorageItem) throws {
-        var items = load()
+        var items = load().filter { $0.id != wallet.id }
         items.append(wallet)
-        items = items.filter { $0.id == wallet.id }
         try save(items)
     }
 
-    func alreadyExist(_ id: String) -> Bool {
+    func exist(_ id: String) -> Bool {
         var items = load()
         return items.contains { $0.id == id }
     }
 
     func setCurrent(_ wallet: WalletStorageItem?) throws {
         guard let wallet = wallet else {
-            try keychain.remove(Keys.current.rawValue)
+            try keychain.removeValue(forKey: Keys.current.rawValue)
             return
         }
         let data = try encoder.encode(wallet)
         guard let json = String(data: data, encoding: .utf8) else { return }
-        try keychain.set(json, key: Keys.current.rawValue)
+        try keychain.set(json, forKey: Keys.current.rawValue)
     }
 
     func deleteAll() throws {
-        try keychain.set("[]", key: Keys.items.rawValue)
+        try keychain.set("[]", forKey: Keys.items.rawValue)
     }
 
     private func save(_ items: [WalletStorageItem]) throws {
         let data = try encoder.encode(items)
-        try keychain.set(String(data: data, encoding: .utf8) ?? "[]", key: Keys.items.rawValue)
+        try keychain.set(String(data: data, encoding: .utf8) ?? "[]", forKey: Keys.items.rawValue)
     }
 }
-#endif

@@ -11,18 +11,14 @@ let logger: Logger = Logger(subsystem: "hh.app.Wallet", category: "HHWallet")
 /// The Android SDK number we are running against, or `nil` if not running on Android
 let androidSDK = ProcessInfo.processInfo.environment["android.os.Build.VERSION.SDK_INT"].flatMap({ Int($0) })
 
-let appState = AppViewModel()
-
 public struct RootView : View {
 
-    @StateObject var viewModel: AppViewModel = appState
+    @StateObject var appState = AppViewModel.shared
 
-    public init() {
-
-    }
+    public init() { }
 
     public var body: some View {
-        switch viewModel.state.status {
+        switch appState.state.status {
         case .loading:
             VStack {
                 Spacer()
@@ -30,21 +26,23 @@ public struct RootView : View {
                 Spacer()
             }
             .onAppear {
-                viewModel.trigger(.loadConfig)
+                appState.trigger(.loadConfig)
             }
         case .loaded:
-            if viewModel.state.walletSelected {
-                MainView()
+            if let wallet = appState.state.selectedWallet {
+                MainView(wallet: wallet)
                     .transition(AnyTransition.asymmetric(
                         insertion: .opacity,
                         removal: .opacity)
                     )
+                    .environmentObject(appState)
             } else {
                 SelectWalletView(mode: .onboarding)
                     .transition(AnyTransition.asymmetric(
                         insertion: .opacity,
                         removal: .opacity)
                     )
+                    .environmentObject(appState)
             }
 
         case .error(let string):
@@ -56,7 +54,7 @@ public struct RootView : View {
                     .foregroundColor(.red)
 
                 ButtonView(text: "Try again", image: nil, style: .secondary, action: {
-                    viewModel.trigger(.loadConfig)
+                    appState.trigger(.loadConfig)
                 })
                 Spacer()
             }

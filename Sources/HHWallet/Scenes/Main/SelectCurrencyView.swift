@@ -7,7 +7,7 @@ import SwiftUI
 struct SelectCurrencyView: View {
 
     let selectedCurrency: String?
-    private let currencies: [String] =  appState.state.config?.currencies ?? []
+    private let currencies: [String] =  AppViewModel.shared.state.config?.currencies ?? []
 
     var action:(String) -> Void
 
