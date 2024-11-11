@@ -6,5 +6,6 @@ import SwiftUI
 import HHWallet
 
 /// The entry point to the app simply loads the App implementation from SPM module.
-@main struct AppMain: App, HHWalletApp {
-}
+@main struct AppMain: App, HHWalletApp { }
+
+

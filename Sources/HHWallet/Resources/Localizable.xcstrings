@@ -7,19 +7,22 @@
     "👌 Copied to clipboard!" : {
 
     },
-    "2HWallet" : {
+    "2H" : {
 
     },
     "All blockchains" : {
 
     },
-    "EDIT" : {
+    "App 1" : {
 
     },
-    "Enter mnemonic" : {
+    "Enter seed phrase" : {
 
     },
-    "I backup mnemonic phrase" : {
+    "Hello, World!" : {
+
+    },
+    "I've saved the seed phrase in a secure vault." : {
 
     },
     "Import wallet" : {
@@ -37,7 +40,13 @@
     "Not found" : {
 
     },
-    "Secret phrase" : {
+    "Please copy the secret to a safe vault or any password manager. If you lose it, you will not be able to recover your wallet." : {
+
+    },
+    "Receive" : {
+
+    },
+    "Seed phrase (secret):" : {
 
     },
     "Select blockchain" : {
@@ -58,7 +67,21 @@
     "USD" : {
 
     },
+    "warning receive %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send only %@ assets to this address. Other assets will be irretrievably lost."
+          }
+        }
+      }
+    },
     "Your balance" : {
+
+    },
+    "Your crypto wallet for web3 world." : {
 
     }
   },

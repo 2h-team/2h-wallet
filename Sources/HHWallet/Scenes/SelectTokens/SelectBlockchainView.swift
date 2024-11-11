@@ -6,6 +6,8 @@ import SwiftUI
 
 struct SelectBlockchainsView: View {
 
+    @EnvironmentObject var themeManager: ThemeManager
+
     let selectedBlockchain: Blockchain?
     private let blockchains: [Blockchain] =  AppViewModel.shared.state.config?.blockchains ?? []
 
@@ -26,7 +28,7 @@ struct SelectBlockchainsView: View {
                         HStack {
                             Text("All blockchains")
                                 .font(.largeTitle)
-                                .foregroundColor(AppStyle.accentColor)
+                                .foregroundColor(themeManager.theme.colors.accent)
                                 .opacity(selectedBlockchain == nil ? 1.0 : 0.5)
 
                         }
@@ -35,7 +37,7 @@ struct SelectBlockchainsView: View {
                     })
 
                     Divider()
-                        .overlay(AppStyle.thirdColor)
+                        .overlay(themeManager.theme.colors.thirdBackground)
                     #if SKIP
                         .opacity(0.1)
                     #endif
@@ -46,7 +48,7 @@ struct SelectBlockchainsView: View {
                             HStack {
                                 Text(item.name)
                                     .font(.largeTitle)
-                                    .foregroundColor(AppStyle.accentColor)
+                                    .foregroundColor(themeManager.theme.colors.accent)
                                     .opacity(selectedBlockchain?.id == item.id ? 1.0 : 0.5)
 
                             }
@@ -55,7 +57,7 @@ struct SelectBlockchainsView: View {
                         })
 
                         Divider()
-                            .overlay(AppStyle.thirdColor)
+                            .overlay(themeManager.theme.colors.thirdBackground)
                         #if SKIP
                             .opacity(0.1)
                         #endif

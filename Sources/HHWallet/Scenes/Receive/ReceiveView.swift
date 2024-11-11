@@ -16,6 +16,9 @@ struct ReceiveView: View {
         case byAccount(Token)
     }
 
+    @EnvironmentObject
+    var themeManager: ThemeManager
+
     @EnvironmentObject 
     var appState: AppViewModel
 
@@ -28,59 +31,28 @@ struct ReceiveView: View {
         switch mode {
         case .default:
             NavigationStack(path: $path) {
-                SelectTokensView(mode: .single({ token in
+                SelectTokensView(mode: SelectTokensView.Mode.single({ token in
                     path.append(token)
                 }))
                 .navigationDestination(for: Token.self) { token in
-                    QRCodeAccountAddressView(token: token, for: appState.state.selectedWallet)
+                    QRCodeAccountAddressView(
+                        token: token,
+                        for: appState.state.selectedWallet
+                    )
+                    .environmentObject(themeManager)
                 }
             }
+
         case .byAccount(let token):
-            QRCodeAccountAddressView(token: token, for: appState.state.selectedWallet)
+            QRCodeAccountAddressView(
+                token: token,
+                for: appState.state.selectedWallet
+            )
+            .environmentObject(themeManager)
         }
 
     }
 
-}
-
-struct QRCodeAccountAddressView: View {
-
-    private let url: URL?
-    private let token: Token
-    private let address: String
-
-    init(token: Token, for wallet: Wallet?) {
-        self.token = token
-        if let wallet = wallet, let address = token.getAccountAddress(for: wallet) {
-            self.address = address
-            self.url = QRCodeUtils.generate(for: address)
-        } else {
-            self.url = nil
-            self.address = ""
-        }
-    }
-
-    var body: some View {
-        VStack {
-            Text(address)
-            AsyncImage(url: url) { image in
-                image
-                    .resizable()
-                    .frame(width: 350, height: 350)
-                    .cornerRadius(8)
-            } placeholder: { }
-            Spacer()
-        }
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private var title: String {
-        if let name = token.name {
-            return "\(name) (\(token.symbol.uppercased()))"
-        }
-        return token.symbol
-    }
 }
 
 #Preview {

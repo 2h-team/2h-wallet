@@ -18,16 +18,19 @@ final class SelectTokensViewModel: ObservableObject {
 
     @Published private(set) var state: State
 
-    init(networkService: NetworkService = .shared, settingsStorage: SettingsStorage = .shared) {
-        self.networkService = networkService
-        self.settingsStorage = settingsStorage
+    init(dependencies: Dependencies = .current) {
+        self.networkService = dependencies.networkService
+        self.settingsStorage = dependencies.settingsStorage
+
         self.selectedTokens = settingsStorage.selectedTokens
 
-        self.state = .init(selectedTokens: Dictionary(uniqueKeysWithValues: self.selectedTokens.map { ($0.id, true) }))
+        self.state = .init(
+            selectedTokens: Dictionary(uniqueKeysWithValues: self.selectedTokens.map { ($0.id, true) }),
+            balances: dependencies.temporaryStorage.tokensBalance ?? [:]
+        )
         if let config = AppViewModel.shared.state.config {
             self.state.blockchains = Dictionary(uniqueKeysWithValues: config.blockchains.map { ($0.id, $0) })
         }
-
     }
 
     func trigger(_ action: Action) {
@@ -105,6 +108,7 @@ extension SelectTokensViewModel {
         var isFinished: Bool = false
         var blockchains: [String: Blockchain] = [:]
         var selectedTokens: [String: Bool] = [:]
+        var balances: [String: TokenBalance] = [:]
     }
 
     enum Action {

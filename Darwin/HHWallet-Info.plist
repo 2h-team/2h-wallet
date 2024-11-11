@@ -7,5 +7,22 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>ibmplexmono_bold.ttf</string>
+		<string>ibmplexmono_bolditalic.ttf</string>
+		<string>ibmplexmono_extralight.ttf</string>
+		<string>ibmplexmono_extralightitalic.ttf</string>
+		<string>ibmplexmono_italic.ttf</string>
+		<string>ibmplexmono_light.ttf</string>
+		<string>ibmplexmono_lightitalic.ttf</string>
+		<string>ibmplexmono_medium.ttf</string>
+		<string>ibmplexmono_mediumitalic.ttf</string>
+		<string>ibmplexmono_regular.ttf</string>
+		<string>ibmplexmono_semibold.ttf</string>
+		<string>ibmplexmono_semibolditalic.ttf</string>
+		<string>ibmplexmono_thin.ttf</string>
+		<string>ibmplexmono_thinitalic.ttf</string>
+	</array>
 </dict>
 </plist>

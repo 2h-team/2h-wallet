@@ -113,11 +113,22 @@ open class MainActivity: AppCompatActivity {
 
 @Composable
 internal fun PresentationRootView(context: ComposeContext) {
-    val colorScheme = if (isSystemInDarkTheme()) ColorScheme.dark else ColorScheme.light
-    PresentationRoot(defaultColorScheme = colorScheme, context = context) { ctx ->
-        val contentContext = ctx.content()
-        Box(modifier = ctx.modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            RootView().Compose(context = contentContext)
+    Material3ColorScheme({ colors, isDark ->
+        colors.copy(
+            outline = ThemeManager.default.theme.colors.outline(isDark).asComposeColor(),
+            // onBackground = ThemeManager.default.theme.colors.background(isDark).asComposeColor(),
+            surface = ThemeManager.default.theme.colors.surface(isDark).asComposeColor(),
+            primary = ThemeManager.default.theme.colors.primary(isDark).asComposeColor(),
+            outlineVariant = ThemeManager.default.theme.colors.outlineVariant(isDark).asComposeColor(),
+        )
+    }, content = {
+        val colorScheme = if (isSystemInDarkTheme()) ColorScheme.dark else ColorScheme.light
+        PresentationRoot(defaultColorScheme = colorScheme, context = context) { ctx ->
+            val contentContext = ctx.content()
+            Box(modifier = ctx.modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                RootView().Compose(context = contentContext)
+            }
         }
-    }
+    })
+
 }

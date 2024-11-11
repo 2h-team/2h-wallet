@@ -8,6 +8,9 @@ import android.content.Context
 import SwiftUI
 
 struct CompleteWalletView: View {
+
+    @EnvironmentObject var themeManager: ThemeManager
+
     @Environment(\.dismiss) var dismiss
 
     let mode: SelectWalletView.Mode
@@ -22,10 +25,10 @@ struct CompleteWalletView: View {
         VStack {
             VStack {
                 HStack {
-                    Text("Secret phrase")
+                    Text("Seed phrase (secret):")
                         .foregroundColor(.gray.opacity(0.6))
-                        .font(.subheadline)
-                        .foregroundColor(AppStyle.accentColor)
+                        .font(AppFont.subheadline)
+                        .foregroundColor(themeManager.theme.colors.accent)
                     Spacer()
                 }
                 VStack {
@@ -35,23 +38,30 @@ struct CompleteWalletView: View {
                         .frame(height: 62)
                     Spacer()
                     HStack(spacing: 4) {
-                        ButtonView(text: (showMnemonic ? "Hide" : "Show"), image: nil, style: .secondary) {
+                        HHButton(config: .secondary(text: (showMnemonic ? "Hide" : "Show"))) {
                             showMnemonic = !showMnemonic
                         }
 
-                        ButtonView(text: "Copy", image: nil, style: .secondary) {
+                        HHButton(config: .secondary(text: "Copy")) {
                             viewModel.trigger(.copy)
                             notify()
                         }
                     }
                     .padding(4)
                 }
-                .background(AppStyle.thirdColor)
+                .background(themeManager.theme.colors.thirdBackground)
                 .cornerRadius(21)
                 .frame(height: 142)
+
+                Text("Please copy the secret to a safe vault or any password manager. If you lose it, you will not be able to recover your wallet.")
+                    .multilineTextAlignment(.leading)
+                    .font(AppFont.caption)
+                    .foregroundColor(themeManager.theme.colors.secondaryText)
+
                 VStack {
                     if copiedNotification {
                         Text("👌 Copied to clipboard!")
+                            .font(AppFont.bodyMedium)
                             .foregroundColor(.green)
                             .padding()
                     }
@@ -67,36 +77,39 @@ struct CompleteWalletView: View {
 
             VStack(spacing: 32) {
                 Toggle(isOn: $isAllowContinue) {
-                    Text("I backup mnemonic phrase")
+                    Text("I've saved the seed phrase in a secure vault.")
+                        .font(AppFont.caption)
                 }
 
-                ButtonView(text: "Complete", image: nil, style: .primary, state: isAllowContinue ? .active : .disable) {
+                HHButton(config: .primary(text: "Complete"), state: isAllowContinue ? .active : .disable) {
                     viewModel.trigger(.finish)
-                    
+
                     if mode == .default {
                         dismiss()
                     }
-
                 }
             }
         }
         .padding(16)
-        .navigationTitle(Text("New"))
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Color.clear, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                VStack {
+                    Text("New")
+                        .font(AppFont.navTitle)
+                }
+            }
+        }
         .onAppear {
             viewModel.trigger(.create)
         }
+        .toolbarBackground(themeManager.theme.colors.background, for: .navigationBar)
     }
 
     func notify() {
-        #if !SKIP
         copiedNotification = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        DispatchQueue.main.asyncAfter(wallDeadline: DispatchWallTime.now() + 2.0, execute: {
             copiedNotification = false
-        }
-        #else
-        // TODO: - Added for android
-        #endif
+        })
     }
 }

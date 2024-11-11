@@ -3,7 +3,10 @@
 // as published by the Free Software Foundation https://fsf.org
 
 import Foundation
+import SwiftUI
 
 enum AppConfig {
     static let defaultCurrency = "USD"
+    static let endpoint = URL(string: "http://localhost:8087")!
 }
+

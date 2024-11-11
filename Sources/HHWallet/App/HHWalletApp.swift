@@ -13,55 +13,78 @@ let androidSDK = ProcessInfo.processInfo.environment["android.os.Build.VERSION.S
 
 public struct RootView : View {
 
+    @StateObject var themeManager = ThemeManager.default
+
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
+    
     @StateObject var appState = AppViewModel.shared
 
     public init() { }
 
     public var body: some View {
-        switch appState.state.status {
-        case .loading:
-            VStack {
-                Spacer()
-                ProgressView()
-                Spacer()
-            }
-            .onAppear {
-                appState.trigger(.loadConfig)
-            }
-        case .loaded:
-            if let wallet = appState.state.selectedWallet {
-                MainView(wallet: wallet)
-                    .transition(AnyTransition.asymmetric(
-                        insertion: .opacity,
-                        removal: .opacity)
-                    )
-                    .environmentObject(appState)
-            } else {
-                SelectWalletView(mode: .onboarding)
-                    .transition(AnyTransition.asymmetric(
-                        insertion: .opacity,
-                        removal: .opacity)
-                    )
-                    .environmentObject(appState)
-            }
+        Group {
+            switch appState.state.status {
+            case .loading:
+                ZStack {
+                    themeManager.theme.colors.background
+                        .ignoresSafeArea()
 
-        case .error(let string):
-            VStack(spacing: 32) {
-                Spacer()
-                Text(string)
-                    .padding()
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(.red)
-
-                ButtonView(text: "Try again", image: nil, style: .secondary, action: {
+                    VStack {
+                        Spacer()
+                        ProgressView()
+                        Spacer()
+                    }
+                }
+                .onAppear {
                     appState.trigger(.loadConfig)
-                })
-                Spacer()
+                }
+            case .loaded:
+                if let wallet = appState.state.selectedWallet {
+                    MainView(wallet: wallet)
+                        .transition(AnyTransition.asymmetric(
+                            insertion: .opacity,
+                            removal: .opacity)
+                        )
+                        .environmentObject(appState)
+                        .environmentObject(themeManager)
+                        #if !SKIP
+                        .accentColor(themeManager.theme.colors.accent)
+                        #endif
+                } else {
+                    SelectWalletView(mode: SelectWalletView.Mode.onboarding)
+                        .transition(AnyTransition.asymmetric(
+                            insertion: .opacity,
+                            removal: .opacity)
+                        )
+                        .environmentObject(appState)
+                        .environmentObject(themeManager)
+                        #if !SKIP
+                        .accentColor(themeManager.theme.colors.accent)
+                        #endif
+                }
+
+            case .error(let string):
+                VStack(spacing: 32) {
+                    Spacer()
+                    Text(string)
+                        .padding()
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.red)
+                        .font(AppFont.body)
+
+                    HHButton(config: .secondary(text: "Try again")) {
+                        appState.trigger(.loadConfig)
+                    }
+                    Spacer()
+                }
+                .padding(20)
+                .background(themeManager.theme.colors.background)
             }
         }
-
-
-
+        .preferredColorScheme(themeManager.theme.colors.colorScheme)
+        .onAppear {
+            themeManager.changeScheme(colorScheme: colorScheme)
+        }
 
     }
 }
@@ -76,6 +99,7 @@ public extension HHWalletApp {
     var body: some Scene {
         WindowGroup {
             RootView()
+
         }
     }
 }
