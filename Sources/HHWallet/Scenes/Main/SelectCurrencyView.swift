@@ -6,16 +6,19 @@ import SwiftUI
 
 struct SelectCurrencyView: View {
 
-    let selectedCurrency: String?
-    private let currencies: [String] =  AppViewModel.shared.state.config?.currencies ?? []
+    @EnvironmentObject 
+    var themeManager: ThemeManager
 
+    let selectedCurrency: String?
     var action:(String) -> Void
+
+    private let currencies: [String] =  AppViewModel.shared.state.config?.currencies ?? []
 
     var body: some View {
         VStack {
             HStack {
                 Text("Select currency")
-                    .font(.body.weight(.semibold))
+                    .font(AppFont.bodySemibold)
             }
             .padding(12)
             ScrollView {
@@ -26,26 +29,26 @@ struct SelectCurrencyView: View {
                         }, label: {
                             HStack {
                                 Text(item.uppercased())
-                                    .font(.largeTitle)
-                                    .foregroundColor(AppStyle.accentColor)
+                                    .font(selectedCurrency?.uppercased() == item.uppercased() ? AppFont.largeTitleBold : AppFont.largeTitle)
+                                    .foregroundColor(themeManager.theme.colors.accent)
                                     .opacity(selectedCurrency?.uppercased() == item.uppercased() ? 1.0 : 0.5)
-
                             }
                             .padding(4)
-
                         })
 
                         Divider()
-                            .overlay(AppStyle.thirdColor)
+                            .overlay(themeManager.theme.colors.thirdBackground)
                         #if SKIP
                             .opacity(0.1)
                         #endif
                     }
                     Spacer()
                 }
+                .padding(.bottom, 50)
             }
         }
-
+        .background(themeManager.theme.colors.background)
+        .ignoresSafeArea()
     }
 }
 

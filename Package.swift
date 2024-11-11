@@ -20,8 +20,8 @@ let package = Package(
 
     ],
     dependencies: [
-        .package(url: "https://source.skip.tools/skip.git", from: "0.8.33"),
-        .package(url: "https://source.skip.tools/skip-ui.git", from: "0.0.0"),
+        .package(url: "https://source.skip.tools/skip.git", from: "1.1.12"),
+        .package(url: "https://source.skip.tools/skip-ui.git", from: "1.13.3"),
         .package(url: "https://source.skip.tools/skip-keychain.git", from: "0.0.0"),
         .package(url: "https://github.com/trustwallet/wallet-core", branch: "master")
     ],

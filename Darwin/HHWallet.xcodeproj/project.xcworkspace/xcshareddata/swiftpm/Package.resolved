@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/skip.git",
       "state" : {
-        "revision" : "52f2383a64059cbcbcd68985cbd15470e379ec9d",
-        "version" : "0.8.46"
+        "revision" : "cff246652b00bb2695a08bdd6ba2606346a4187d",
+        "version" : "1.1.12"
       }
     },
     {
@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/skip-foundation.git",
       "state" : {
-        "revision" : "ed345b753237dfa1746e2d7365083fb9143963ee",
-        "version" : "0.6.11"
+        "revision" : "90802f0ce68b835a3a49dbcb039cb7ec20345d27",
+        "version" : "1.1.12"
       }
     },
     {
@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/skip-keychain.git",
       "state" : {
-        "revision" : "21b494124ef9d67e33720129be180991260bc09a",
-        "version" : "0.0.1"
+        "revision" : "747dfd7c387a986542dee5634b54a8fdcd4ebc92",
+        "version" : "0.1.0"
       }
     },
     {
@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/skip-lib.git",
       "state" : {
-        "revision" : "bd6882dfd2d7bcfe9f1affa3a7961badc769e894",
-        "version" : "0.7.13"
+        "revision" : "3a510fa915dbcf42234b54668a1e475b8bae5ea0",
+        "version" : "1.1.3"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/skip-model.git",
       "state" : {
-        "revision" : "1cc61fc5affe418d5ea14dbcf12e09ca3b6c54b1",
-        "version" : "0.7.0"
+        "revision" : "d0a9611595d72040c7870261c909679bc08afd1d",
+        "version" : "1.2.0"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/skip-ui.git",
       "state" : {
-        "revision" : "92c0569fe52e3b02bd0fb9bde01a7bc44b9fa817",
-        "version" : "0.9.6"
+        "revision" : "6500612757ca2a105a5a65edb0702970e80b1c64",
+        "version" : "1.13.3"
       }
     },
     {
@@ -59,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/skip-unit.git",
       "state" : {
-        "revision" : "c4e83bfc0ee1dfa5cfb58e4c0a2e04f1c870e1f2",
-        "version" : "0.7.2"
+        "revision" : "025d7240090310caeb5a3bef68ff61e0576ea605",
+        "version" : "1.0.1"
       }
     },
     {
@@ -69,7 +69,7 @@
       "location" : "https://github.com/trustwallet/wallet-core",
       "state" : {
         "branch" : "master",
-        "revision" : "a85c7d401f0d814eabbc72577a4b24b9ff2dda41"
+        "revision" : "8c605ed267dec7b77415249a4e238bdc95d84c72"
       }
     }
   ],

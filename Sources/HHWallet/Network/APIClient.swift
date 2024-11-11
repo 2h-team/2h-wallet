@@ -4,7 +4,7 @@
 
 import Foundation
 
-fileprivate let ENDPOINT = URL(string: "http://localhost:8087")!
+fileprivate let ENDPOINT = AppConfig.endpoint
 
 fileprivate struct JSON {
     static let encoder = JSONEncoder()
@@ -17,6 +17,12 @@ public enum HTTPMethod: String {
     case post = "POST"
     case delete = "DELETE"
 }
+
+//protocol APIMethodProtocol: Encodable {
+//    var url: URL { get }
+//    var httpMethod: HTTPMethod { get }
+//    var headers: [String: String] { get }
+//}
 
 enum APIMethods {
     case balance

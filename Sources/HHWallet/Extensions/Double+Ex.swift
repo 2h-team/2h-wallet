@@ -4,3 +4,10 @@
 
 import Foundation
 
+extension Double {
+
+    func asChangePercent() -> String {
+        return "\(self >= 0 ? "↗" : "↙") \(String(format: "%.2f", self))"
+    }
+
+}

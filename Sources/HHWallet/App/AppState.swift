@@ -7,18 +7,24 @@ import SwiftUI
 
 final class AppViewModel: ObservableObject {
 
-    public static let shared: AppViewModel = .init()
+    static let shared: AppViewModel = .init(dependencies: .current)
 
     @Published private(set) var state: State
 
     private let walletService: WalletServiceProtocol
-    private let networkingService: NetworkService
+    private let networkService: NetworkService
+    private let settingsStorage: SettingsStorage
 
-    private init(walletService: WalletServiceProtocol = WalletService.shared, networkingService: NetworkService = .shared) {
-        self.walletService = walletService
-        self.networkingService = networkingService
+    private init(dependencies: Dependencies) {
 
-        state = .init(selectedWallet: nil, status: State.Status.loading)
+        self.walletService = dependencies.walletService
+        self.networkService = dependencies.networkService
+        self.settingsStorage = dependencies.settingsStorage
+
+        state = .init(
+            selectedWallet: nil,
+            status: State.Status.loading
+        )
     }
 
     func trigger(_ action: Action) {
@@ -27,7 +33,7 @@ final class AppViewModel: ObservableObject {
             state.selectedWallet = wallet
         case .loadConfig:
             state.status = .loading
-            networkingService.getConfig { result in
+            networkService.getConfig { result in
                 Task { @MainActor in
                     switch result {
                     case .success(let config):
@@ -40,7 +46,7 @@ final class AppViewModel: ObservableObject {
                         // TODO: - Remove. Need for test
                         self.state.status = .loaded
                         self.state.config = .default
-                        self.state.selectedWallet = self.walletService.currentWallet
+                        self.state.selectedWallet = self.walletService.getWallets().first
                     }
                 }
             }

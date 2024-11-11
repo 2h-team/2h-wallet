@@ -8,11 +8,13 @@ fileprivate enum Constants {
     static let arrowDown = Image(systemName: "chevron.down")
 }
 
+typealias TokenBalance = MainViewModel.State.Token
+
 struct SelectTokensView: View {
 
     enum Mode {
         case many
-        case single((Token)->Void)
+        case single((Token) -> Void)
 
         var isMany: Bool {
             switch self {
@@ -24,10 +26,17 @@ struct SelectTokensView: View {
         }
     }
 
-    @StateObject private var viewModel = SelectTokensViewModel()
-    @State private var searchText: String = ""
+    @EnvironmentObject 
+    var themeManager: ThemeManager
 
-    @State private var showSelectBlockchain: Bool = false
+    @StateObject 
+    private var viewModel = SelectTokensViewModel()
+    
+    @State
+    private var searchText: String = ""
+
+    @State
+    private var showSelectBlockchain: Bool = false
 
     var mode: Mode = .many
 
@@ -37,6 +46,7 @@ struct SelectTokensView: View {
             NavigationStack {
                 content
             }
+            .background(themeManager.theme.colors.background)
         case .single:
             content
         }
@@ -47,10 +57,10 @@ struct SelectTokensView: View {
         List {
             Section {
                 ForEach(viewModel.state.tokens, id: \.self) { token in
-                    switch mode {
-                    case .many:
+
+                    if mode.isMany {
                         tokenView(token: token)
-                    case .single:
+                    } else {
                         Button(action: {
                             switch mode {
                             case .many:
@@ -65,26 +75,14 @@ struct SelectTokensView: View {
                 }
             } header: {
                 HStack {
-                    Button(action: {
+                    HHButton(config: .secondary(text: (viewModel.state.blockchain?.name ?? "All Blockchains").uppercased(), imageName: "chevron.down", size: .small, fitContent: true, isRtl: true)) {
                         showSelectBlockchain = true
-                    }, label: {
-                        HStack {
-                            Text((viewModel.state.blockchain?.name ?? "All Blockchains").uppercased())
-                                .font(.caption)
-                            Constants.arrowDown
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 12, height: 12)
-                        }
+                    }
 
-                        .padding(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
-                        .background(AppStyle.secondaryColor)
-                        .cornerRadius(18)
-
-                    })
                     Spacer()
                 }
-                .padding(.bottom, 12)
+//                .padding(.bottom, 12)
+//                .padding(.top, -20)
             } footer: {
                 if !viewModel.state.isFinished {
                     HStack {
@@ -112,16 +110,27 @@ struct SelectTokensView: View {
                 }
             }
         }
-        #if !SKIP
+
+#if !SKIP
         .listStyle(.grouped)
-        #endif
-        #if SKIP
-        .searchable(text: $searchText)
-        #else
+#endif
+#if SKIP
+        .searchable(text: $searchText, prompt: Text("Search token").font(AppFont.body))
+#else
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
-        #endif
-        .navigationTitle("Select tokens")
+#endif
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                VStack {
+                    Text("Select tokens")
+                        .font(AppFont.navTitle)
+                }
+            }
+        }
+        .toolbarBackground(themeManager.theme.colors.background, for: .navigationBar)
+        .font(AppFont.body)
+        .background(themeManager.theme.colors.thirdBackground)
         .sheet(isPresented: $showSelectBlockchain, content: {
             SelectBlockchainsView(selectedBlockchain: viewModel.state.blockchain) { selected in
                 showSelectBlockchain = false
@@ -149,14 +158,15 @@ struct SelectTokensView: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack {
                     Text(token.token.symbol.uppercased())
-                        .font(.body.weight(.semibold))
+                        .font(AppFont.bodySemibold)
+                        .foregroundColor(themeManager.theme.colors.text)
                         .lineLimit(1)
 
                     if let blockchain = viewModel.state.blockchains[token.token.blockchainId] {
                         VStack {
                             Text(blockchain.shortname)
-                                .font(.caption.weight(.semibold))
-                                .foregroundColor(.gray)
+                                .font(AppFont.captionMedium)
+                                .foregroundColor(themeManager.theme.colors.secondaryText)
                         }
                         .padding(.horizontal, 4)
                         .padding(.vertical, 2)
@@ -166,8 +176,8 @@ struct SelectTokensView: View {
                 }
 
                 Text(token.token.name ?? "")
-                    .font(.caption)
-                    .foregroundColor(.gray)
+                    .font(AppFont.caption)
+                    .foregroundColor(themeManager.theme.colors.secondaryText)
 
             }
             .padding(.vertical, 2)
@@ -180,14 +190,31 @@ struct SelectTokensView: View {
                 }), label: {
                     EmptyView()
                 })
+                .tint(themeManager.theme.colors.accent)
+            } else {
+                if let balance = viewModel.state.balances[token.token.id] {
+                    if !balance.formattedValue.isEmpty {
+                        Spacer()
+
+                        VStack(alignment: .trailing, spacing: 4) {
+                            Text(balance.formattedValue)
+                                .font(AppFont.captionMedium)
+                            if !balance.formattedAmount.isEmpty {
+                                Text(balance.formattedAmount)
+                                    .font(AppFont.caption)
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                    }
+                }
             }
 
         }
-        #if SKIP
+#if SKIP
         .padding(.vertical, 8)
         .padding(.horizontal, 12)
-        #endif
-        .listRowBackground(AppStyle.thirdColor)
+#endif
+        .listRowBackground(themeManager.theme.colors.thirdBackground)
     }
 
 }

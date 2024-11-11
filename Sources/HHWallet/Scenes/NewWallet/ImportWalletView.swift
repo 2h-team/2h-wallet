@@ -5,6 +5,9 @@
 import SwiftUI
 
 struct ImportWalletView: View {
+
+    @EnvironmentObject var themeManager: ThemeManager
+
     #if !SKIP
     @Environment(\.presentationMode) var mode
     #endif
@@ -17,20 +20,24 @@ struct ImportWalletView: View {
     var body: some View {
         VStack {
             VStack(alignment: .leading) {
-                Text("Enter mnemonic")
-                #if SKIP
-                TextEditor(text: $mnemonic)
-                    .textFieldStyle(.roundedBorder)
-                #else
+                Text("Enter seed phrase")
                 ZStack {
                     RoundedRectangle(cornerRadius: 13)
-                        .fill(AppStyle.thirdColor)
+                        .fill(themeManager.theme.colors.thirdBackground)
+                    #if SKIP
+                    TextEditor(text: $mnemonic)
+                        .textFieldStyle(.roundedBorder)
+                        .font(AppFont.bodyMedium)
+
+                    #else
                     TextEditor(text: $mnemonic)
                         .setTextEditorBackground(color: .clear)
                         .padding(10)
+                        .font(AppFont.bodyMedium)
+                    #endif
+
                 }
                 .frame(height: 124)
-                #endif
                 if !viewModel.state.errorMessage.isEmpty {
                     Text(viewModel.state.errorMessage)
                         .foregroundColor(.red)
@@ -49,7 +56,7 @@ struct ImportWalletView: View {
         .padding(16)
         .navigationTitle(Text("Import wallet"))
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Color.clear, for: .navigationBar)
+        .toolbarBackground(themeManager.theme.colors.background, for: .navigationBar)
     }
 
     @ViewBuilder

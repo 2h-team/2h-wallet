@@ -5,7 +5,10 @@
 import Foundation
 
 enum AmountFormatter {
-    static func format(double: Double, currencyCode: String? = nil, local: Locale = Locale(identifier: "en")) -> String? {
+
+    static func format(double: Double, currencyCode: String? = nil, local: Locale = Locale.current) -> String? {
+        if double == 0.0 { return "0.00" }
+
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.maximumFractionDigits = 5
@@ -16,6 +19,8 @@ enum AmountFormatter {
     }
 
     static func format(amount: String, decimals: Int) -> String {
+        if amount == "0" { return "0.00" }
+
         if amount.count > decimals {
             let amountSuffix = amount.suffix(decimals)
             let amountPrefix = amount.prefix(amount.count - decimals)
@@ -27,4 +32,5 @@ enum AmountFormatter {
             return "0.\("\(String(repeating: "0", count: count))\(amount)".prefix(5))"
         }
     }
+
 }

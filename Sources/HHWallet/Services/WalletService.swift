@@ -109,8 +109,12 @@ final class WalletService: WalletServiceProtocol {
     func isValidMnemonic(mnemonic: String) -> Bool {
 #if SKIP
         // TODO: - Need use Mnemonic.isValid
-        guard let wallet = HDWallet(mnemonic, "") else { return false }
-        return true
+        do {
+            let wallet = HDWallet(mnemonic, "")
+            return wallet != nil
+        } catch {}
+        return false
+
 #else
         return Mnemonic.isValid(mnemonic: mnemonic)
 #endif

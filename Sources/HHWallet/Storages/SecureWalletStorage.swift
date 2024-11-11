@@ -8,7 +8,7 @@ import SkipKeychain
 final class SecureWalletStorage: WalletStorageProtocol {
 
     private enum Keys: String {
-        case service = "hh-wallet", items, current
+        case items, current
     }
 
     private let decoder = JSONDecoder()
@@ -37,7 +37,7 @@ final class SecureWalletStorage: WalletStorageProtocol {
     }
 
     func exist(_ id: String) -> Bool {
-        var items = load()
+        let items = load()
         return items.contains { $0.id == id }
     }
 

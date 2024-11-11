@@ -7,10 +7,8 @@ import Foundation
 final class SettingsStorage {
     
     private enum Keys: String {
-        case selectedCurrency, selectedBlockchain, selectedTokens
+        case selectedCurrency, selectedBlockchain, selectedTokens, colorTheme
     }
-
-    static let shared = SettingsStorage()
 
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
@@ -53,6 +51,16 @@ final class SettingsStorage {
             } else {
                 settings.removeObject(forKey: Keys.selectedTokens.rawValue)
             }
+        }
+    }
+
+    var colorTheme: DisplayMode {
+        get {
+            return DisplayMode(rawValue: settings.integer(forKey: Keys.colorTheme.rawValue) ?? 0) ?? DisplayMode.system
+        }
+
+        set {
+            settings.set(newValue.rawValue, forKey: Keys.colorTheme.rawValue)
         }
     }
 }

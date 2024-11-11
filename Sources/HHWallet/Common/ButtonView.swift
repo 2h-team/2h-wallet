@@ -14,25 +14,31 @@ struct ButtonView: View {
     var action: () -> Void
     
     var body: some View {
+        
         Button(action: {
             action()
         }, label: {
             ContentView(text: text, image: image, imageSize: imageSize, style: style, state: state)
         })
+        .clipShape(RoundedRectangle(cornerRadius: style.cornerRadius))
         .disabled(state != .active)
+        .cornerRadius(style.cornerRadius)
+
     }
 
     struct ContentView: View {
+
         let text: String?
         let image: Image?
         var imageSize: CGFloat = 24.0
         let style: ButtonView.Style
         var state: ButtonView.Status
+
         var body: some View {
             ZStack {
                 switch style {
-                case .primary, .apple, .secondary, .clear:
-                    RoundedRectangle(cornerRadius: 20)
+                case .primary, .apple, .secondary, .plain:
+                    Rectangle()
                         .fill(style.bgColor)
                 }
                 HStack(alignment: .center, spacing: 12) {
@@ -50,7 +56,7 @@ struct ButtonView: View {
             }
             .frame(width: isSquare ? heightSize : nil, height: heightSize)
             .opacity(state == .active ? 1.0 : 0.4)
-            .cornerRadius(20)
+
         }
 
         private var isSquare: Bool {
@@ -66,17 +72,21 @@ struct ButtonView: View {
 extension ButtonView {
 
     enum Style {
-        case primary, secondary, apple, clear
+        case primary, secondary, apple, plain
+
+        var cornerRadius: CGFloat {
+            return 20.0
+        }
 
         var bgColor: Color {
             switch self {
             case .primary:
                 Color.accentColor
             case.secondary:
-                AppStyle.secondaryColor
+                Color.blue
             case .apple:
                 Color.black
-            case .clear:
+            case .plain:
                 Color.clear
             }
         }
@@ -89,7 +99,7 @@ extension ButtonView {
                 Color.accentColor
             case .apple:
                 Color.accentColor
-            case .clear:
+            case .plain:
                 Color.accentColor
             }
         }
@@ -99,3 +109,14 @@ extension ButtonView {
         case active, loading, disable
     }
 }
+
+#if !SKIP
+struct AnimationPressButton: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.9 : 1)
+            .animation(Animation.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+#endif

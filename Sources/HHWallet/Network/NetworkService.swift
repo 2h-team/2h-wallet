@@ -26,8 +26,10 @@ final class NetworkService {
         }
     }
 
-    static let shared = NetworkService()
-
-    let client: APIClient = .shared
+    let client: APIClient
     let decoder = JSONDecoder()
+
+    init(_ client: APIClient) {
+        self.client = client
+    }
 }

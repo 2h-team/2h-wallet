@@ -16,6 +16,8 @@ struct ExtendedToken: Codable, Hashable, Equatable {
     let value: String
     let uiValue: Double
     let token: Token
+    let change24h: Double?
+    let volume24h: Double?
 }
 
 struct Token: Codable, Hashable, Equatable, Identifiable {
